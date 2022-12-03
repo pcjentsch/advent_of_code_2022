@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::ops::Div;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let problem = args[1].as_str();
@@ -7,9 +8,10 @@ fn main() {
         "1" => advent_1("input_1a"),
         "2a" => advent_2a("input_2a"),
         "2b" => advent_2b("input_2a"),
+        "3" => advent_3a("input_3"),
         _ => 0,
     };
-    dbg!(ans);
+    println!("{}",ans);
 }
 
 fn advent_1(path: &str) -> usize{
@@ -94,7 +96,39 @@ fn advent_2b(path: &str) -> usize{
     return score;
 }
 
+fn to_priority(items: &str) -> Vec<u8>{
+    return items.as_bytes().into_iter().map(|&x| 
+        if x>=65 && x <= 91{
+            x - 38
+        }
+        else{
+            x - 96
+        }
+    ).collect();
+}
 
+
+
+fn advent_3a(path: &str)->usize{
+    let contents = fs::read_to_string(path).expect("file not found");
+    let mut total_priority = 0;
+    for line in contents.split("\n"){
+        let compartment_size = line.len().div(2);
+        let left_compartment = to_priority(&line[0..compartment_size]);
+        let right_compartment = to_priority(&line[compartment_size..line.len()]);
+        let mut left_compartment_flags:u64 = 0;
+        let mut right_compartment_flags:u64 = 0;
+        for item in left_compartment{
+            left_compartment_flags = left_compartment_flags | (1 << item);
+        }
+        for item in right_compartment{
+            right_compartment_flags = right_compartment_flags | (1 << item);
+        }
+        let shared = ((left_compartment_flags & right_compartment_flags) as f64).log2() as usize;
+        total_priority += shared;
+    }
+    return total_priority;
+}
 
 
 #[cfg(test)]
@@ -110,6 +144,11 @@ mod tests {
     fn test_advent_2b()
     {
         assert_eq!(advent_2b("test_2a"),12);
+    }
+    #[test]
+    fn test_advent_3()
+    {
+        assert_eq!(advent_3a("test_3"),157);
     }
 
 
