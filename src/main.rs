@@ -1,6 +1,7 @@
 use std::env;
 use std::fs;
-use std::ops::Div;
+use std::ops::Div;    
+use itertools::Itertools;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let problem = args[1].as_str();
@@ -8,7 +9,8 @@ fn main() {
         "1" => advent_1("input_1a"),
         "2a" => advent_2a("input_2a"),
         "2b" => advent_2b("input_2a"),
-        "3" => advent_3a("input_3"),
+        "3a" => advent_3a("input_3"),
+        "3b" => advent_3b("input_3"),
         _ => 0,
     };
     println!("{}",ans);
@@ -118,7 +120,7 @@ fn advent_3a(path: &str)->usize{
         let right_compartment = to_priority(&line[compartment_size..line.len()]);
         let mut left_compartment_flags:u64 = 0;
         let mut right_compartment_flags:u64 = 0;
-        for item in left_compartment{
+        for item in left_compartment{ //overoptimizing
             left_compartment_flags = left_compartment_flags | (1 << item);
         }
         for item in right_compartment{
@@ -126,6 +128,32 @@ fn advent_3a(path: &str)->usize{
         }
         let shared = ((left_compartment_flags & right_compartment_flags) as f64).log2() as usize;
         total_priority += shared;
+    }
+    return total_priority;
+}
+
+fn advent_3b(path: &str)->usize{
+    let contents = fs::read_to_string(path).expect("file not found");
+    let mut total_priority = 0;
+    for group in &contents.split("\n").chunks(3){
+        
+        let compartments: Vec<Vec<u8>> = group.into_iter().map(to_priority).collect();
+        let mut compartment_flags: [usize; 52] = [0;52];
+        for compartment in compartments{
+            let mut compartment_set: [bool; 52] = [false;52];
+            for item in compartment{
+                if !compartment_set[(item-1) as usize] {
+                    compartment_flags[(item-1) as usize] += 1;
+                    compartment_set[(item-1) as usize] = true;
+                }
+            }
+        }
+        for (i,counter) in compartment_flags.iter().enumerate(){
+            if *counter == 3{
+                total_priority += i+1
+            }
+        }
+
     }
     return total_priority;
 }
@@ -146,9 +174,15 @@ mod tests {
         assert_eq!(advent_2b("test_2a"),12);
     }
     #[test]
-    fn test_advent_3()
+    fn test_advent_3a()
     {
         assert_eq!(advent_3a("test_3"),157);
+    }
+
+    #[test]
+    fn test_advent_3b()
+    {
+        assert_eq!(advent_3b("test_3"),70);
     }
 
 
