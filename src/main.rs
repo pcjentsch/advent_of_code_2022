@@ -11,6 +11,8 @@ fn main() {
         "2b" => advent_2b("input_2a"),
         "3a" => advent_3a("input_3"),
         "3b" => advent_3b("input_3"),
+        "4a" => advent_4a("input_4"),
+        "4b" => advent_4b("input_4"),
         _ => 0,
     };
     println!("{}",ans);
@@ -159,6 +161,63 @@ fn advent_3b(path: &str)->usize{
 }
 
 
+fn advent_4a(path: &str) -> usize{
+    let contents = fs::read_to_string(path).expect("file not found");
+    let mut total = 0;
+    for line in contents.split("\n"){
+        let ranges: Vec<&str> = line.split(",").collect();
+        let range1= ranges[0].split("-").map(|x| str::parse::<usize>(x).unwrap()).collect::<Vec<usize>>();
+        let range2= ranges[1].split("-").map(|x| str::parse::<usize>(x).unwrap()).collect::<Vec<usize>>();
+        if range1[0] == range2[0]{
+            total += 1;
+        }
+        else if range1[0]>range2[0]{
+            if range1[1] <= range2[1]{
+                // dbg!(range1);
+                // dbg!(range2);
+                total += 1;
+            }
+        }
+        else if range1[0]<range2[0]{
+            if range1[1] >= range2[1]{
+                // dbg!(range1);
+                // dbg!(range2);
+                total += 1;
+            }
+        }
+    }
+    return total;
+}
+
+
+fn advent_4b(path: &str) -> usize{
+    let contents = fs::read_to_string(path).expect("file not found");
+    let mut total = 0;
+    for line in contents.split("\n"){
+        let ranges: Vec<&str> = line.split(",").collect();
+        let range1= ranges[0].split("-").map(|x| str::parse::<usize>(x).unwrap()).collect::<Vec<usize>>();
+        let range2= ranges[1].split("-").map(|x| str::parse::<usize>(x).unwrap()).collect::<Vec<usize>>();
+        if range1[0]>=range2[0] && range1[0]<=range2[1]{
+            total += 1;
+            continue;
+        }
+        else if range1[1]>=range2[0] && range1[1]<=range2[1] {
+            total += 1;
+            continue;
+        }
+        else if range1[0]<=range2[0] && range1[1]>=range2[1]{
+            total += 1;
+            continue;
+        }
+    }
+    return total;
+}
+
+fn advent_5(path: &str) -> usize{
+    let contents = fs::read_to_string(path).expect("file not found");
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -183,6 +242,18 @@ mod tests {
     fn test_advent_3b()
     {
         assert_eq!(advent_3b("test_3"),70);
+    }
+
+    #[test]
+    fn test_advent_4a()
+    {
+        assert_eq!(advent_4a("test_4"),2);
+    }
+
+    #[test]
+    fn test_advent_4b()
+    {
+        assert_eq!(advent_4b("test_4"),4);
     }
 
 
